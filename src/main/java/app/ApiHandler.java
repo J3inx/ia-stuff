@@ -44,19 +44,30 @@ public class ApiHandler {
         public String name;
         public String city;
         public String state;
+        public String address1;
+        public String address2;
+        public String zip;
         public double lat;
         public double lon;
     }
 
     /** ---------------------- */
-    /**    JSON file loader    */
+    /**    JSON file loaders   */
     /** ---------------------- */
 
     public static List<Route> loadRoutes() throws Exception {
         Type listType = new TypeToken<List<Route>>(){}.getType();
         return gson.fromJson(
-            new FileReader("src/amtrak-api/_site/routes.json"),
-            listType
+                new FileReader("src/amtrak-api/_site/routes.json"),
+                listType
+        );
+    }
+
+    public static List<StationInfo> loadAllStations() throws Exception {
+        Type listType = new TypeToken<List<StationInfo>>(){}.getType();
+        return gson.fromJson(
+                new FileReader("src/amtrak-api/_site/stations.json"),
+                listType
         );
     }
 }
