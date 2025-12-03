@@ -4,40 +4,25 @@
 ![Contributors](https://img.shields.io/github/contributors/J3inx/wagner.vs?style=flat-square)
 
 **huge work in progess, i dont know what i am doing**
-currently developing a script that might be able to cheese some of shein's mobile crap games, just run the script, input your referral link, and hope for the best.
-still a huge `wip` so dont expect anything yet
+based on the amtrak api by mgwalker: https://github.com/mgwalker/amtrak-api
 
 ## usage in a clui
 ```bash
-python3 testbot.py
+./start_app.command
 ```
-from there it should just ask you:
-```bash
-Enter the URL you want to visit (excluding http://, or https://:): 
-```
+from there it should open up a JFrame panel with the start state and city as well as the destination state and city
 
-happy cheating!
+
 
 ![smilingbucktooth](https://github.com/user-attachments/assets/edd42958-8df0-4959-95e7-9dbbecfaef3a)
 
 ## next up on my list of things to do for this
-- [x] start working on the damn thing
-- [x] figure out how to use the referall code from just the web
-    (didn't work)
-- [ ] (optional) if that doesnt work, figure out how to emulate the app or something from this script
-- [ ] start working on the bot and it detecting and clicking specified needed items
-- [ ] more tbd?
+- [ ] add google maps api if possible?
 
 ### most recent updates:
 
-<sup>1/16/25: found a mobile emulator and an apk that i need for shein, might need to find a different emulator than android studio that can be installed from the command line but this is the best i've got so far</sup>
+<sup>12/3/25: first updates done</sup>
 
 
 
-<sup>the shein games only really working on the mobile
-app. will keep working on it but useful for gettin
-to websites using a proxy, still need to code the
-bot itself and it's actions as well as move
-dependancies from the venv to a local source
-maybe use pip and a requirements page, works
-almost as intended so far though</sup>
+

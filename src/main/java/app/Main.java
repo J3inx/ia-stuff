@@ -1,6 +1,7 @@
 package app;
 
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -41,23 +42,44 @@ public class Main {
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui.setLayout(new BorderLayout());
 
+        // --------------------
+        // jpanel setup and formatting
+        // --------------------
         JLabel mapPanel = new JLabel("MAP", SwingConstants.CENTER);
         mapPanel.setPreferredSize(new Dimension(350, 500));
         gui.add(mapPanel, BorderLayout.WEST);
 
         JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
+        controls.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
+
 
         JComboBox<String> startStateBox = new JComboBox<>(allStates);
         JComboBox<String> startCityBox = new JComboBox<>(allCities);
         JComboBox<String> destStateBox = new JComboBox<>(allStates);
         JComboBox<String> destCityBox = new JComboBox<>(allCities);
+        JComboBox<String> classBox = new JComboBox<>(new String[]{"economy", "business", "first", "private"});
+        
+
 
         JButton findButton = new JButton("Find Route");
 
-        JTextArea results = new JTextArea(15, 30);
+        // --------------------
+        // JTextPane formatting
+        // --------------------
+        JTextPane results = new JTextPane();
         results.setEditable(false);
+
+        // output area padding
+        results.setMargin(new Insets(5, 5, 5, 5));
+
         JScrollPane scroll = new JScrollPane(results);
+        scroll.setPreferredSize(new Dimension(350, 200));
+
+        StyledDocument doc = results.getStyledDocument();
+        SimpleAttributeSet normal = new SimpleAttributeSet();
+        SimpleAttributeSet bold = new SimpleAttributeSet();
+        StyleConstants.setBold(bold, true);
 
         // Add components
         controls.add(new JLabel("Start State:"));
@@ -70,10 +92,11 @@ public class Main {
         controls.add(destStateBox);
         controls.add(new JLabel("Destination City:"));
         controls.add(destCityBox);
+        controls.add(new JLabel("Class:"));
+        controls.add(classBox);
         controls.add(Box.createVerticalStrut(20));
-
         controls.add(findButton);
-        controls.add(Box.createVerticalStrut(20));
+        controls.add(Box.createVerticalStrut(10));
         controls.add(new JLabel("Results:"));
         controls.add(scroll);
 
@@ -95,123 +118,163 @@ public class Main {
         });
 
         // --------------------
-        // Button action
+        // Find Route Button
         // --------------------
         findButton.addActionListener(e -> {
-            String startCity = (String) startCityBox.getSelectedItem();
-            String startState = (String) startStateBox.getSelectedItem();
-            String destCity = (String) destCityBox.getSelectedItem();
-            String destState = (String) destStateBox.getSelectedItem();
+    String startCity = (String) startCityBox.getSelectedItem();
+    String startState = (String) startStateBox.getSelectedItem();
+    String destCity = (String) destCityBox.getSelectedItem();
+    String destState = (String) destStateBox.getSelectedItem();
+    String classType = (String) classBox.getSelectedItem(); // selected travel class
 
-            List<ApiHandler.Route> matches =
-                    RouteFinder.findRoutesByCityAndState(allRoutes, startCity, startState, destCity, destState);
+    // Clear previous output
+    try { doc.remove(0, doc.getLength()); } catch (Exception ignored) {}
 
-            if (matches.isEmpty()) {
-                results.setText("No direct trains from " + startCity + ", " + startState +
-                        " to " + destCity + ", " + destState);
-                return;
+    // -------------------------
+    // Calculate lowest price
+    // -------------------------
+    String fromCode = RouteFinder.stationsMap.entrySet().stream()
+            .filter(entry -> entry.getValue().city.equalsIgnoreCase(startCity) &&
+                             entry.getValue().state.equalsIgnoreCase(startState))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+
+    String toCode = RouteFinder.stationsMap.entrySet().stream()
+            .filter(entry -> entry.getValue().city.equalsIgnoreCase(destCity) &&
+                             entry.getValue().state.equalsIgnoreCase(destState))
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+
+    if (fromCode != null && toCode != null) {
+        double price = RouteFinder.calculateLowestPrice(fromCode, toCode, classType);
+        appendStyled(doc, "Lowest possible price: $" + String.format("%.2f", price) + "\n\n", normal);
+    }
+
+    // -------------------------
+    // Find matching routes
+    // -------------------------
+    List<ApiHandler.Route> matches =
+            RouteFinder.findRoutesByCityAndState(allRoutes, startCity, startState, destCity, destState);
+
+    if (matches.isEmpty()) {
+        appendStyled(doc,
+             "No direct trains from " + startCity + ", " + startState +
+             " to " + destCity + ", " + destState + "\n",
+             normal
+        );
+        return;
+    }
+
+    appendStyled(doc, "-------------------------------------------\n", normal);
+
+    for (ApiHandler.Route route : matches) {
+
+        appendStyled(doc, "Route: " + route.route + "\n", normal);
+
+        Set<String> printedTrains = new HashSet<>();
+
+        for (ApiHandler.Train train : route.trains) {
+            String trainKey = train.number + "-" + train.heading;
+            if (printedTrains.contains(trainKey)) continue;
+
+            int startIndex = -1, destIndex = -1;
+            List<ApiHandler.Station> stations = train.stations;
+
+            // Find index of start + destination
+            for (int i = 0; i < stations.size(); i++) {
+                ApiHandler.Station s = stations.get(i);
+                if (s.station != null) {
+                    if (s.station.city.equalsIgnoreCase(startCity) &&
+                            s.station.state.equalsIgnoreCase(startState))
+                        startIndex = i;
+
+                    if (s.station.city.equalsIgnoreCase(destCity) &&
+                            s.station.state.equalsIgnoreCase(destState))
+                        destIndex = i;
+                }
             }
 
-            StringBuilder out = new StringBuilder();
-            out.append("-------------------------------------------\n");
+            if (startIndex != -1 && destIndex != -1 && startIndex < destIndex) {
+                printedTrains.add(trainKey);
 
-            for (ApiHandler.Route route : matches) {
-                out.append("Route: ").append(route.route).append("\n");
+                appendStyled(doc, "  Train #" + train.number + " (" + train.heading + ")\n", normal);
+                appendStyled(doc, "    Departure from " + startCity + "\n", normal);
+                appendStyled(doc, "    Arrival at " + destCity + "\n", normal);
 
-                Set<String> printedTrains = new HashSet<>();
+                // List stations, bold start and end stations
+                for (int i = startIndex; i <= destIndex; i++) {
+                    ApiHandler.Station s = stations.get(i);
+                    String line = "      • " + s.station.state +
+                                  " — " + s.station.city +
+                                  " — " + s.station.name + "\n";
 
-                for (ApiHandler.Train train : route.trains) {
-                    String trainKey = train.number + "-" + train.heading;
-                    if (printedTrains.contains(trainKey)) continue;
-
-                    int startIndex = -1, destIndex = -1;
-                    List<ApiHandler.Station> stations = train.stations;
-
-                    for (int i = 0; i < stations.size(); i++) {
-                        ApiHandler.Station s = stations.get(i);
-                        if (s.station != null) {
-                            if (s.station.city.equalsIgnoreCase(startCity) &&
-                                    s.station.state.equalsIgnoreCase(startState)) {
-                                startIndex = i;
-                            }
-                            if (s.station.city.equalsIgnoreCase(destCity) &&
-                                    s.station.state.equalsIgnoreCase(destState)) {
-                                destIndex = i;
-                            }
-                        }
-                    }
-
-                    if (startIndex != -1 && destIndex != -1 && startIndex < destIndex) {
-                        printedTrains.add(trainKey);
-
-                        ApiHandler.Station startStation = stations.get(startIndex);
-                        ApiHandler.Station destStation = stations.get(destIndex);
-
-                        String departureTime = startStation.departureActual != null
-                                ? startStation.departureActual
-                                : startStation.departureScheduled;
-
-                        String arrivalTime = destStation.arrivalActual != null
-                                ? destStation.arrivalActual
-                                : destStation.arrivalScheduled;
-
-                        out.append("  Train #").append(train.number)
-                                .append(" (").append(train.heading).append(")\n");
-                        out.append("    Departure from ").append(startCity).append("\n");
-                        out.append("    Arrival at ").append(destCity).append("\n");
-
-                        // List all stations between start and dest
-                        for (int i = startIndex; i <= destIndex; i++) {
-                            ApiHandler.Station s = stations.get(i);
-                            out.append("      • ").append(s.station.state)
-                                    .append(" — ").append(s.station.city)
-                                    .append(" — ").append(s.station.name)
-                                    .append("\n");
-                        }
-
-                        // --------------------------
-                        // Compute estimated travel time
-                        // --------------------------
-                        try {
-                            java.time.ZonedDateTime dep = java.time.ZonedDateTime.parse(departureTime);
-                            java.time.ZonedDateTime arr = java.time.ZonedDateTime.parse(arrivalTime);
-                            java.time.Duration duration = java.time.Duration.between(dep, arr);
-
-                            long hours = duration.toHours();
-                            long minutes = duration.toMinutes() % 60;
-                            out.append("-------------------------------------------\n");
-                            out.append("EST: ").append(hours).append(" hours");
-                            if (minutes > 0) {
-                               
-                                out.append(" ").append(minutes).append(" mins");
-                                out.append("\n-------------------------------------------");
-                            }
-                            out.append("\n");
-                        } catch (Exception ex) {
-                            out.append("-------------------------------------------\n");
-                            out.append("EST: N/A (can't computer or not found)\n"); // fallback if times are missing
-                            out.append("\n-------------------------------------------");
-                        }
-                    }
+                    if (i == startIndex || i == destIndex)
+                        appendStyled(doc, line, bold);
+                    else
+                        appendStyled(doc, line, normal);
                 }
 
-                //out.append("-------------------------------------------\n");
-            }
+                appendStyled(doc, "-------------------------------------------\n", normal);
 
-            results.setText(out.toString());
-        });
+                // Compute travel time
+                try {
+                    java.time.ZonedDateTime dep = java.time.ZonedDateTime.parse(
+                            stations.get(startIndex).departureActual != null
+                                    ? stations.get(startIndex).departureActual
+                                    : stations.get(startIndex).departureScheduled
+                    );
+
+                    java.time.ZonedDateTime arr = java.time.ZonedDateTime.parse(
+                            stations.get(destIndex).arrivalActual != null
+                                    ? stations.get(destIndex).arrivalActual
+                                    : stations.get(destIndex).arrivalScheduled
+                    );
+
+                    java.time.Duration duration = java.time.Duration.between(dep, arr);
+                    long hours = duration.toHours();
+                    long minutes = duration.toMinutes() % 60;
+
+                    appendStyled(doc, "EST: " + hours + " hours", normal);
+                    if (minutes > 0) {
+                        appendStyled(doc, " " + minutes + " mins", normal);
+                    }
+                    appendStyled(doc, "\n-------------------------------------------\n", normal);
+
+                } catch (Exception ex) {
+                    appendStyled(doc, "EST: N/A (can't compute)\n", normal);
+                    appendStyled(doc, "-------------------------------------------\n", normal);
+                }
+            }
+        }
+    }
+});
+
 
         gui.setVisible(true);
     }
+
+    // ---------------------------------------------
+    // Styled output helper
+    // ---------------------------------------------
+    private void appendStyled(StyledDocument doc, String text, AttributeSet style) {
+        try {
+            doc.insertString(doc.getLength(), text, style);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // -------------------- State / City Helpers --------------------
 
     private List<String> getAllStates(List<ApiHandler.Route> routes) {
         Set<String> set = new HashSet<>();
         for (ApiHandler.Route r : routes) {
             for (ApiHandler.Train t : r.trains) {
                 for (ApiHandler.Station s : t.stations) {
-                    if (s.station != null && s.station.state != null) {
+                    if (s.station != null && s.station.state != null)
                         set.add(s.station.state);
-                    }
                 }
             }
         }
@@ -223,9 +286,8 @@ public class Main {
         for (ApiHandler.Route r : routes) {
             for (ApiHandler.Train t : r.trains) {
                 for (ApiHandler.Station s : t.stations) {
-                    if (s.station != null && s.station.city != null) {
+                    if (s.station != null && s.station.city != null)
                         set.add(s.station.city);
-                    }
                 }
             }
         }
@@ -237,9 +299,9 @@ public class Main {
         for (ApiHandler.Route r : allRoutes) {
             for (ApiHandler.Train t : r.trains) {
                 for (ApiHandler.Station s : t.stations) {
-                    if (s.station != null && state.equalsIgnoreCase(s.station.state)) {
+                    if (s.station != null &&
+                        state.equalsIgnoreCase(s.station.state))
                         set.add(s.station.city);
-                    }
                 }
             }
         }
@@ -247,4 +309,8 @@ public class Main {
         Collections.sort(list);
         return list;
     }
+     // -------------------- Pricing Helpers --------------------
+    // Assume you have the station codes (3-letter) for start and destination
+
+
 }
