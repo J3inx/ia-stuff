@@ -6,6 +6,13 @@
       "name": "Main",
       "request": "launch",
       "mainClass": "app.Main",
+      "projectName": "ia-work_44a76148"
+    },
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "app.Main",
       "projectName": "ia-stuff_154d6fc5"
     },
     {

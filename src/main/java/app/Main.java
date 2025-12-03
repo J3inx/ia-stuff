@@ -113,6 +113,7 @@ public class Main {
             }
 
             StringBuilder out = new StringBuilder();
+            out.append("-------------------------------------------\n");
 
             for (ApiHandler.Route route : matches) {
                 out.append("Route: ").append(route.route).append("\n");
@@ -178,21 +179,23 @@ public class Main {
 
                             long hours = duration.toHours();
                             long minutes = duration.toMinutes() % 60;
-                            out.append("-----------------------\n");
+                            out.append("-------------------------------------------\n");
                             out.append("EST: ").append(hours).append(" hours");
                             if (minutes > 0) {
                                
                                 out.append(" ").append(minutes).append(" mins");
+                                out.append("\n-------------------------------------------");
                             }
                             out.append("\n");
                         } catch (Exception ex) {
-                            out.append("-----------------------\n");
+                            out.append("-------------------------------------------\n");
                             out.append("EST: N/A (can't computer or not found)\n"); // fallback if times are missing
+                            out.append("\n-------------------------------------------");
                         }
                     }
                 }
 
-                out.append("-----------------------\n");
+                //out.append("-------------------------------------------\n");
             }
 
             results.setText(out.toString());
