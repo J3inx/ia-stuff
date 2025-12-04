@@ -146,9 +146,19 @@ public class Main {
             .map(Map.Entry::getKey)
             .findFirst()
             .orElse(null);
+            System.out.println("Looking for start: " + startCity + ", " + startState);
+System.out.println("Looking for dest: " + destCity + ", " + destState);
+
+RouteFinder.stationsMap.forEach((code, station) -> {
+    if (station.city.equalsIgnoreCase(startCity) || station.city.equalsIgnoreCase(destCity)) {
+        System.out.println("Station match candidate: " + code + " -> " + station.city + ", " + station.state);
+    }
+});
+
 
     if (fromCode != null && toCode != null) {
         double price = RouteFinder.calculateLowestPrice(fromCode, toCode, classType);
+        System.out.println(price);
         appendStyled(doc, "Lowest possible price: $" + String.format("%.2f", price) + "\n\n", normal);
     }
 
