@@ -3,24 +3,19 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Main",
+      "name": "Main (iawork)",
       "request": "launch",
       "mainClass": "app.Main",
-      "projectName": "ia-work_44a76148"
+      "projectName": "ia-work_44a76148",
+      "vmArgs": "--module-path /Users/bw26168/java/jfx/javafx-sdk-17.0.17/lib --add-modules javafx.controls,javafx.fxml,javafx.swing --enable-native-access=ALL-UNNAMED -Dprism.order=sw -Dprism.verbose=true -Djava.library.path=/Users/bw26168/java/jfx/javafx-sdk-17.0.17/lib"
     },
     {
       "type": "java",
-      "name": "Main",
-      "request": "launch",
-      "mainClass": "app.Main",
-      "projectName": "ia-stuff_154d6fc5"
-    },
-    {
-      "type": "java",
-      "name": "Startup",
+      "name": "Startup (iawork)",
       "request": "launch",
       "mainClass": "app.Startup",
-      "projectName": "ia-stuff_154d6fc5"
+      "projectName": "ia-work_44a76148",
+      "vmArgs": "--module-path /Users/bw26168/java/jfx/javafx-sdk-17.0.17/lib --add-modules javafx.controls,javafx.fxml,javafx.swing --enable-native-access=ALL-UNNAMED -Dprism.order=sw -Dprism.verbose=true -Djava.library.path=/Users/bw26168/java/jfx/javafx-sdk-17.0.17/lib"
     },
     {
       "type": "node",

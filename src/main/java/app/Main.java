@@ -5,6 +5,12 @@ import javax.swing.text.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.*;
+import javafx.scene.text.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 public class Main {
 
@@ -55,6 +61,12 @@ public class Main {
         JLabel mapPanel = new JLabel("MAP", SwingConstants.CENTER);
         mapPanel.setPreferredSize(new Dimension(350, 500));
         gui.add(mapPanel, BorderLayout.WEST);
+        JFXPanel fxPanel = new JFXPanel();
+            Platform.runLater(() -> {
+                WebView webView = new WebView();
+                fxPanel.setScene(new Scene(webView));
+            });
+        mapPanel.add(fxPanel);
 
         JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));

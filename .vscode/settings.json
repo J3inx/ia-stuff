@@ -5,5 +5,10 @@
             "path": "/Users/bw26168/java/jdk/jdk-25.0.1+8/Contents/Home",
             "default": true
         }
+    ],
+    "java.project.referencedLibraries": [
+        "**/*.jar",
+        "!/Users/bw26168/java/jfx/javafx-sdk-25.0.1/lib/*.jar",
+        "/Users/bw26168/java/jfx/javafx-sdk-17.0.17/lib/*.jar"
     ]
 }
