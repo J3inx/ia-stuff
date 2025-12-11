@@ -54,21 +54,35 @@ echo "Running: npm run site"
 npm run site
 
 # ----------------------
-# Compile Java
+# Compile Java (FIXED: Added JavaFX module-path)
 # ----------------------
 echo ""
 cd "$SCRIPT_DIR"
 echo "Compiling Java..."
 
-javac -cp lib/gson-2.10.1.jar src/main/java/app/*.java
+JAVAFX_LIB="/Users/$USER/java/jfx/javafx-sdk-17.0.17/lib"
+
+javac \
+  --module-path "$JAVAFX_LIB" \
+  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+  -cp lib/gson-2.10.1.jar \
+  src/main/java/app/*.java
 
 # ----------------------
-# Run the App
+# Run the App (FIXED: JavaFX runtime flags added)
 # ----------------------
 echo ""
 echo "Running Java program..."
-java -cp "lib/gson-2.10.1.jar:src/main/java" app.Startup
+java \
+  --module-path "$JAVAFX_LIB" \
+  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+  -cp "lib/gson-2.10.1.jar:src/main/java" \
+  app.Startup
 
 echo ""
 echo "Done with test! Running Main.java..."
-java -cp "lib/gson-2.10.1.jar:src/main/java" app.Main
+java \
+  --module-path "$JAVAFX_LIB" \
+  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+  -cp "lib/gson-2.10.1.jar:src/main/java" \
+  app.Main
