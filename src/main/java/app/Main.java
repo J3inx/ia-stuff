@@ -11,6 +11,7 @@ import javafx.scene.*;
 import javafx.scene.text.*;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import java.io.IOException;
 
 public class Main {
 
@@ -149,6 +150,10 @@ public class Main {
             List<ApiHandler.Route> matches =
                     RouteFinder.findRoutesByCityAndState(allRoutes, startCity, startState, destCity, destState);
 
+            if(startCity.equals(destCity) && startState.equals(destState)){
+                 appendStyled(doc, "Can not route a train's destination to it's start" + "\n", normal);
+                return;
+            }
             if (matches.isEmpty()) {
                 appendStyled(doc, "No direct trains from " + startCity + ", " + startState +
                                       " to " + destCity + ", " + destState + "\n", normal);
