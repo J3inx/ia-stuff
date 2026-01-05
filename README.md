@@ -11,7 +11,7 @@ based on the [amtrak api by mgwalker](https://github.com/mgwalker/amtrak-api)
 ## usage in a clui
 navigate to the root folder and run:
 ```bash
-./start_app.command
+./start.command
 ```
 from there it should open up a JFrame/javafx panel with boxes for the start state and city as well as the destination state and city
 
