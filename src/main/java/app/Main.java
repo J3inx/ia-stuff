@@ -13,8 +13,6 @@ import javafx.scene.web.WebView;
 public class Main {
 
     private List<ApiHandler.Route> allRoutes;
-
-    // ✅ Keep your custom flag, but make it a field
     private int xof = 0;
 
     public static void main(String[] args) {
@@ -55,20 +53,20 @@ public class Main {
         // GUI Setup
         // --------------------
         JFrame gui = new JFrame("Train Planner");
-        gui.setSize(750, 500);
+        gui.setSize(390, 500);
         gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gui.setLayout(new BorderLayout());
 
         JLabel mapPanel = new JLabel("MAP", SwingConstants.CENTER);
         mapPanel.setPreferredSize(new Dimension(350, 500));
-        gui.add(mapPanel, BorderLayout.WEST);
+       // gui.add(mapPanel, BorderLayout.WEST);
 
         JFXPanel fxPanel = new JFXPanel();
         Platform.runLater(() -> {
             WebView webView = new WebView();
             fxPanel.setScene(new Scene(webView));
         });
-        mapPanel.add(fxPanel);
+       // mapPanel.add(fxPanel);
 
         JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
