@@ -144,7 +144,7 @@ public class Main {
             String destCity = (String) destCityBox.getSelectedItem();
             String destState = (String) destStateBox.getSelectedItem();
             String classType = (String) classBox.getSelectedItem();
-        
+             System.out.println("user routed from: " + startCity + ", " + startState + " to: " + destCity+ ", " + destState);
             if (startCity.equals(destCity) && startState.equals(destState)) {
                 appendStyled(doc, "Can not route a train's destination to its start\n", normal);
                 return;
@@ -188,13 +188,12 @@ public class Main {
             SwingWorker<RouteFinder.PathResult, Void> worker = new SwingWorker<>() {
                 @Override
                 protected RouteFinder.PathResult doInBackground() {
-                    // 🔹 Call new Dijkstra-based pathfinder
                     return RouteFinder.findShortestRoute(allRoutes, fromCode, toCode);
                 }
             
                 @Override
                 protected void done() {
-                    spinnerTimer.stop();  // stop spinner
+                    spinnerTimer.stop(); 
                     try {
                         doc.remove(0, doc.getLength());
                         RouteFinder.PathResult result = get();
@@ -258,7 +257,7 @@ public class Main {
             };
             
         
-            worker.execute();  // starts background computation
+            worker.execute();  
         });
         
 
@@ -280,13 +279,11 @@ public class Main {
         gui.setVisible(true);
     }
 
-    // Helper to print styled text
     private void appendStyled(StyledDocument doc, String text, AttributeSet style) {
         try { doc.insertString(doc.getLength(), text, style); }
         catch (Exception ignored) {}
     }
 
-    // State / City helpers
     private List<String> getAllStates(List<ApiHandler.Route> routes) {
         Set<String> s = new HashSet<>();
         for (ApiHandler.Route r : routes)
@@ -317,6 +314,7 @@ public class Main {
                         s.add(st.station.city);
         List<String> out = new ArrayList<>(s);
         Collections.sort(out);
+       
         return out;
     }
 }

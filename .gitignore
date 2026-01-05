@@ -1,5 +1,5 @@
 # Ignore all files in lib/javafx
-lib/javafx/saver/*
+lib/javafx/saver/javafx-sdk-17.0.17/*
 
 # Ignore all files in lib/jdk
-lib/jdk/saver/*
+lib/jdk/saver/jdk-17.0.16.jdk/*
