@@ -30,6 +30,7 @@ from there it should open up a JFrame/javafx panel with boxes for the start stat
 
 <sup>1/4/26: logic finished</sup>
 
+<sup>1/5/26: removed map from main version to create cleaner look until i can get the map working</sup>
 
 
 
