@@ -10,8 +10,8 @@ echo "Project root: $SCRIPT_DIR"
 # ----------------------------
 # Bundled JDK + JavaFX inside project
 # ----------------------------
-BUNDLED_JDK="$SCRIPT_DIR/lib/jdk/jdk-17.0.16.jdk/Contents/Home"
-BUNDLED_FX="$SCRIPT_DIR/lib/javafx/javafx-sdk-17.0.17/lib"
+BUNDLED_JDK="$SCRIPT_DIR/lib/jdk/saver/jdk-17.0.16.jdk/Contents/Home"
+BUNDLED_FX="$SCRIPT_DIR/lib/javafx/saver/javafx-sdk-17.0.17/lib"
 
 # ----------------------------
 # Node tasks
