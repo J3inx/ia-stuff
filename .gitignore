@@ -1,5 +1,5 @@
 # Ignore all files in lib/javafx
-lib/javafx/*
+lib/javafx/saver/*
 
 # Ignore all files in lib/jdk
-lib/jdk/*
+lib/jdk/saver/*
