@@ -208,7 +208,16 @@ public class Main {
                         appendStyled(doc, "Optimal Route\n", bold);
             
                         ApiHandler.Train lastTrain = null;
+                        int x = 0;
                         for (RouteFinder.Leg leg : result.bestPath) {
+                            if(x==0){
+                                appendStyled(doc,
+                                    "\t🚆 Train #" + leg.train.number +
+                                    " → " + startCity + ", " +
+                                    startState + "\n",
+                                    normal);
+                                  x++;  
+                            }
                             if (lastTrain != null && leg.train.number != lastTrain.number) {
                                 appendStyled(doc,
                                         "🔁 Switch trains at " +
