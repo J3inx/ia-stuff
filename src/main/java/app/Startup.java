@@ -1,67 +1,74 @@
 package app;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Startup {
 
     public static void main(String[] args) throws Exception {
         String startCity = "Washington";
-        String startState = "DC"; // optional, add state if you want more accuracy
+        String startState = "DC";
         String destCity = "Roanoke";
-        String destState = "VA"; // optional
+        String destState = "VA";
 
         System.out.println("Loading Amtrak data...");
         List<ApiHandler.Route> routes = ApiHandler.loadRoutes();
 
-        System.out.println("Finding routes from " + startCity + ", " + startState +
-                           " to " + destCity + ", " + destState + "...");
-        List<ApiHandler.Route> found = RouteFinder.findRoutesByCityAndState(
-                routes, startCity, startState, destCity, destState);
+        // Build stations map
+        RouteFinder.populateStationsMap(routes);
 
-        System.out.println("Found " + found.size() + " possible routes.\n");
+        // Build leg graph
+        System.out.println("Building leg graph...");
+        RouteFinder.buildLegGraph(routes);
 
-        for (ApiHandler.Route route : found) {
-            System.out.println("Route: " + route.route);
+        // Resolve station codes
+        String fromCode = RouteFinder.stationsMap.entrySet().stream()
+                .filter(e -> e.getValue().city.equalsIgnoreCase(startCity) &&
+                             e.getValue().state.equalsIgnoreCase(startState))
+                .map(e -> e.getKey())
+                .findFirst()
+                .orElse(null);
 
-            Set<String> printedTrains = new HashSet<>();
+        String toCode = RouteFinder.stationsMap.entrySet().stream()
+                .filter(e -> e.getValue().city.equalsIgnoreCase(destCity) &&
+                             e.getValue().state.equalsIgnoreCase(destState))
+                .map(e -> e.getKey())
+                .findFirst()
+                .orElse(null);
 
-            for (ApiHandler.Train train : route.trains) {
-                String trainKey = train.number + "-" + train.heading;
-                if (printedTrains.contains(trainKey)) continue; // skip duplicates
+        if (fromCode == null || toCode == null) {
+            System.out.println("Invalid station codes, aborting.");
+            return;
+        }
 
-                int startIndex = -1, destIndex = -1;
-                List<ApiHandler.Station> stations = train.stations;
+        System.out.println("Finding shortest route...");
+        RouteFinder.PathResult result = RouteFinder.findShortestRoute(fromCode, toCode);
 
-                for (int i = 0; i < stations.size(); i++) {
-                    ApiHandler.Station s = stations.get(i);
-                    if (s.station != null) {
-                        if (s.station.city.equalsIgnoreCase(startCity) &&
-                            s.station.state.equalsIgnoreCase(startState)) {
-                            startIndex = i;
-                        }
-                        if (s.station.city.equalsIgnoreCase(destCity) &&
-                            s.station.state.equalsIgnoreCase(destState)) {
-                            destIndex = i;
-                        }
-                    }
-                }
+        if (result.bestPath.isEmpty()) {
+            System.out.println("No route found.");
+            return;
+        }
 
-                if (startIndex != -1 && destIndex != -1 && startIndex < destIndex) {
-                    printedTrains.add(trainKey);
+        long h = result.totalMinutes / 60;
+        long m = result.totalMinutes % 60;
 
-                    System.out.println("  Train #" + train.number + " (" + train.heading + ")");
-                    for (int i = startIndex; i <= destIndex; i++) {
-                        ApiHandler.Station s = stations.get(i);
-                        System.out.println("      • " + s.station.state + " — " +
-                                           s.station.city + " — " + s.station.name);
-                    }
-                }
+        System.out.println("Optimal Route:");
+        ApiHandler.Train lastTrain = null;
+        for (RouteFinder.Leg leg : result.bestPath) {
+            if (lastTrain != null && leg.train != lastTrain) {
+                System.out.println("🔁 Switch trains at " +
+                        leg.from.station.city + ", " +
+                        leg.from.station.state +
+                        " → Train #" + leg.train.number);
             }
 
-            System.out.println("-----------------------");
-            
+            System.out.println("\t🚆 Train #" + leg.train.number +
+                    " → " + leg.to.station.city + ", " +
+                    leg.to.station.state);
+            lastTrain = leg.train;
         }
+
+        System.out.println("EST: " + h + " hours" + (m > 0 ? " " + m + " mins" : ""));
+        double price = RouteFinder.calculateLowestPrice(fromCode, toCode, "economy");
+        System.out.println("Lowest possible price: $" + String.format("%.2f", price));
     }
 }

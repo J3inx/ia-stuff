@@ -1,88 +1,118 @@
 #!/bin/bash
 set -e
 
+# ----------------------------
+# Project root
+# ----------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "Project root: $SCRIPT_DIR"
 
-echo ""
-echo "Checking for Java..."
+# ----------------------------
+# Bundled JDK + JavaFX inside project
+# ----------------------------
+BUNDLED_JDK="$SCRIPT_DIR/lib/jdk/jdk-17.0.16.jdk/Contents/Home"
+BUNDLED_FX="$SCRIPT_DIR/lib/javafx/javafx-sdk-17.0.17/lib"
 
-USE_FALLBACK=false
-
-# Check if java exists AND is real (not macOS stub)
-if command -v java >/dev/null 2>&1; then
-    if java -version >/dev/null 2>&1; then
-        echo "System Java is valid."
-    else
-        echo "System Java is NOT valid (macOS stub)."
-        USE_FALLBACK=true
-    fi
-else
-    echo "Java executable not found."
-    USE_FALLBACK=true
-fi
-
-# Fallback JDK
-FALLBACK_JDK="/Users/$USER/java/jdk/jdk-25.0.1+8/Contents/Home"
-
-if [ "$USE_FALLBACK" = true ]; then
-    echo "Trying fallback JDK..."
-    if [ -d "$FALLBACK_JDK" ]; then
-        export JAVA_HOME="$FALLBACK_JDK"
-        export PATH="$JAVA_HOME/bin:$PATH"
-        echo "Using fallback JDK at $JAVA_HOME"
-    else
-        echo "ERROR: No Java found, and fallback JDK not installed at:"
-        echo "  $FALLBACK_JDK"
-        exit 1
-    fi
-fi
-
-echo ""
-echo "Java version:"
-java -version || true
-
-# ----------------------
-# Run Node tasks
-# ----------------------
-echo ""
+# ----------------------------
+# Node tasks
+# ----------------------------
 cd "$SCRIPT_DIR/src/amtrak-api"
-echo "Running: npm run update"
 npm run update
-
-echo "Running: npm run site"
 npm run site
 
-# ----------------------
-# Compile Java (FIXED: Added JavaFX module-path)
-# ----------------------
-echo ""
-cd "$SCRIPT_DIR"
-echo "Compiling Java..."
+# ----------------------------
+# Helper: compile & run with a given JDK + FX
+# ----------------------------
+try_java() {
+    local JDK_HOME="$1"
+    local FX_LIB="$2"
 
-JAVAFX_LIB="/Users/$USER/java/jfx/javafx-sdk-17.0.17/lib"
+    export JAVA_HOME="$JDK_HOME"
+    export PATH="$JAVA_HOME/bin:$PATH"
 
-javac \
-  --module-path "$JAVAFX_LIB" \
-  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
-  -cp lib/gson-2.10.1.jar \
-  src/main/java/app/*.java
+    echo ""
+    echo "Using Java: $JAVA_HOME"
+    java -version || true
 
-# ----------------------
-# Run the App (FIXED: JavaFX runtime flags added)
-# ----------------------
-echo ""
-echo "Running Java program..."
-java \
-  --module-path "$JAVAFX_LIB" \
-  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
-  -cp "lib/gson-2.10.1.jar:src/main/java" \
-  app.Startup
+    echo ""
+    echo "Compiling Java..."
+    cd "$SCRIPT_DIR" || exit 1
+    find src/main/java/app -name "*.java" > sources.txt
 
-echo ""
-echo "Done with test! Running Main.java..."
-java \
-  --module-path "$JAVAFX_LIB" \
-  --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
-  -cp "lib/gson-2.10.1.jar:src/main/java" \
-  app.Main
+    if ! javac \
+        --module-path "$FX_LIB" \
+        --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+        -cp lib/gson-2.10.1.jar \
+        @sources.txt
+    then
+        return 1
+    fi
+
+    echo "Running Startup test..."
+    if ! java \
+        --module-path "$FX_LIB" \
+        --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+        -cp "lib/gson-2.10.1.jar:src/main/java" \
+        app.Startup
+    then
+        return 1
+    fi
+
+    echo "Running Main GUI..."
+    java \
+        --module-path "$FX_LIB" \
+        --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.swing \
+        -cp "lib/gson-2.10.1.jar:src/main/java" \
+        app.Main
+
+    return 0
+}
+
+# ----------------------------
+# Try system Java first (macOS-friendly)
+# ----------------------------
+if command -v java >/dev/null 2>&1 && java -version >/dev/null 2>&1; then
+    SYSTEM_JAVA_HOME=$(/usr/libexec/java_home 2>/dev/null || echo "")
+    if [ -n "$SYSTEM_JAVA_HOME" ]; then
+        JAVAFX_LIB="$BUNDLED_FX"   # bundled FX path
+        if try_java "$SYSTEM_JAVA_HOME" "$JAVAFX_LIB"; then
+            echo "System Java succeeded."
+            # Only try system Java for non-UI tasks
+        if try_java "$SYSTEM_JAVA_HOME" "$BUNDLED_FX"; then
+            echo "System Java succeeded for CLI tasks."
+        else
+            echo "System Java failed for CLI tasks."
+        fi
+
+        # Then run GUI explicitly with bundled JDK + FX
+        echo "Running GUI with bundled JDK + JavaFX..."
+        try_java "$BUNDLED_JDK" "$BUNDLED_FX"
+
+            exit 0
+        else
+            echo "System Java failed, falling back to bundled JDK..."
+        fi
+    else
+        echo "System Java detected but JAVA_HOME could not be resolved, using bundled JDK..."
+    fi
+fi
+
+
+# ----------------------------
+# Use bundled JDK + FX
+# ----------------------------
+if [ ! -d "$BUNDLED_JDK" ]; then
+    echo "ERROR: Bundled JDK not found at $BUNDLED_JDK"
+    exit 1
+fi
+if [ ! -d "$BUNDLED_FX" ]; then
+    echo "ERROR: Bundled JavaFX not found at $BUNDLED_FX"
+    exit 1
+fi
+
+if try_java "$BUNDLED_JDK" "$BUNDLED_FX"; then
+    echo "Bundled JDK + JavaFX succeeded."
+else
+    echo "ERROR: Even bundled JDK + JavaFX failed."
+    exit 1
+fi

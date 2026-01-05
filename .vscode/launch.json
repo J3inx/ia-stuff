@@ -3,6 +3,20 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Startup",
+      "request": "launch",
+      "mainClass": "app.Startup",
+      "projectName": "ia-stuff_154d6fc5"
+    },
+    {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "app.Main",
+      "projectName": "ia-stuff_154d6fc5"
+    },
+    {
+      "type": "java",
       "name": "Main (iawork)",
       "request": "launch",
       "mainClass": "app.Main",
