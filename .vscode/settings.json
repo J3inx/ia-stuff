@@ -2,7 +2,7 @@
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-17",
-      "path": "lib/jdk/jdk-17.0.16.jdk/Contents/Home",
+      "path": "lib/jdk/saver/jdk-17.0.16.jdk/Contents/Home",
       "default": true
     },
     {

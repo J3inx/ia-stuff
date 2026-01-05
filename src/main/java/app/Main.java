@@ -191,7 +191,7 @@ public class Main {
                 @Override
                 protected RouteFinder.PathResult doInBackground() {
                     // 🔹 Call new Dijkstra-based pathfinder
-                    return RouteFinder.findShortestRoute(fromCode, toCode);
+                    return RouteFinder.findShortestRoute(allRoutes, fromCode, toCode);
                 }
             
                 @Override

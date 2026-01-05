@@ -41,7 +41,7 @@ public class Startup {
         }
 
         System.out.println("Finding shortest route...");
-        RouteFinder.PathResult result = RouteFinder.findShortestRoute(fromCode, toCode);
+        RouteFinder.PathResult result = RouteFinder.findShortestRoute(routes, fromCode, toCode);
 
         if (result.bestPath.isEmpty()) {
             System.out.println("No route found.");
