@@ -15,7 +15,7 @@ navigate to the root folder and run:
 ```
 from there it should open up a JFrame/javafx panel with boxes for the start state and city as well as the destination state and city
 
-
+sometimes the api doesnt get downloaded with the project, so if you download the folder and place it into src with the name "amtrak-api" then it should work
 
 ![smilingbucktooth](https://github.com/user-attachments/assets/edd42958-8df0-4959-95e7-9dbbecfaef3a)
 
