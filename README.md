@@ -26,6 +26,7 @@ from there it should open up a JFrame/javafx panel with boxes for the start stat
 ### most recent updates:
 
 <sup>12/3/25: first updates done</sup>
+
 <sup>1/4/26: logic finished</sup>
 
 
