@@ -1,6 +1,6 @@
 # ia-stuff
 
-[![Java 17.0.16](https://img.shields.io/badge/java-17.0.16-blue.svg)](https://adoptium.net/)
+[![Java 17.0.16](https://img.shields.io/badge/java-17.0.16-purple.svg)](https://adoptium.net/)
 [![Javafx 17.0.17](https://img.shields.io/badge/javafx-17.0.17-purple.svg)](https://gluonhq.com/products/javafxopenjfx-17-release-notes/)
 ![Contributors](https://img.shields.io/github/contributors/J3inx/wagner.vs?style=flat-square)
 
