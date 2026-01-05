@@ -1,1 +1,5 @@
-src/amtrak-api
+# Ignore all files in lib/javafx
+lib/javafx/*
+
+# Ignore all files in lib/jdk
+lib/jdk/*
