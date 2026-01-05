@@ -3,8 +3,9 @@
 [![Java 25.01+](https://img.shields.io/badge/java-25.01+-blue.svg)](https://adoptium.net/)
 ![Contributors](https://img.shields.io/github/contributors/J3inx/wagner.vs?style=flat-square)
 
-**huge work in progess, i dont know what i am doing** \n
-based on the amtrak api by mgwalker: https://github.com/mgwalker/amtrak-api
+**huge work in progess, i dont know what i am doing** 
+
+based on the [amtrak api by mgwalker](https://github.com/mgwalker/amtrak-api)
 
 ## usage in a clui
 ```bash
