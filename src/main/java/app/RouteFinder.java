@@ -65,9 +65,7 @@ public class RouteFinder {
     // -------------------- Build Full Leg Graph --------------------
     public static void buildLegGraph(List<ApiHandler.Route> routes) {
         departures.clear();
-
-        // For every train, create legs from every station to all stations after it
-        for (ApiHandler.Route r : routes) {
+         for (ApiHandler.Route r : routes) { // For every train, create legs from every station to all stations after it
             for (ApiHandler.Train t : r.trains) {
                 List<ApiHandler.Station> stops = t.stations;
                 for (int i = 0; i < stops.size() - 1; i++) {
@@ -104,7 +102,7 @@ public class RouteFinder {
     public static PathResult findShortestRoute(List<ApiHandler.Route> allRoutes, String fromCode, String toCode) {
         PathResult result = new PathResult();
 
-        // ---------- Step 1: Old logic - direct train ----------
+        // ---------- main logic - direct train ----------
         for (ApiHandler.Route r : allRoutes) {
             for (ApiHandler.Train t : r.trains) {
                 int startIndex = -1, destIndex = -1;
@@ -116,7 +114,7 @@ public class RouteFinder {
                 }
 
                 if (startIndex != -1 && destIndex != -1 && startIndex < destIndex) {
-                    // direct train found
+                    // direct train hit
                     for (int i = startIndex; i < destIndex; i++) {
                         Leg leg = new Leg();
                         leg.train = t;
@@ -139,7 +137,7 @@ public class RouteFinder {
             }
         }
 
-        // ---------- Step 2: BFS / multi-leg search ----------
+        // ---------- fall back 2: BFS / multi-leg search ----------
         class QueueNode {
             String stationCode;
             List<Leg> path;
@@ -154,8 +152,7 @@ public class RouteFinder {
             }
         }
 
-        Queue<QueueNode> queue = new LinkedList<>();
-        // use station+train as visited key to allow transfers
+        Queue<QueueNode> queue = new LinkedList<>();        // use station and or train as visited key to allow transfers
         Set<String> visited = new HashSet<>();
         queue.add(new QueueNode(fromCode, new ArrayList<>(), 0, null));
 
@@ -191,7 +188,7 @@ public class RouteFinder {
 
     // -------------------- PathResult --------------------
     public static class PathResult {
-        public long totalMinutes = 0; // fixed from Long.MAX_VALUE
+        public long totalMinutes = 0;
         public List<Leg> bestPath = new ArrayList<>();
     }
 }
