@@ -129,7 +129,7 @@ public class Main {
         });
 
         // -----------------------------------------
-        // Find Route Click Action (PATCHED)
+        // Find Route Click Action
         // -----------------------------------------
         findButton.addActionListener(e -> {
             try { doc.remove(0, doc.getLength()); } catch (Exception ignored) {}
