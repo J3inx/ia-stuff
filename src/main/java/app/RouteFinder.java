@@ -65,7 +65,8 @@ public class RouteFinder {
     // -------------------- Build Full Leg Graph --------------------
     public static void buildLegGraph(List<ApiHandler.Route> routes) {
         departures.clear();
-         for (ApiHandler.Route r : routes) { // For every train, create legs from every station to all stations after it
+         for (ApiHandler.Route r : routes) { 
+            // For every train, create legs from every station to all stations after it
             for (ApiHandler.Train t : r.trains) {
                 List<ApiHandler.Station> stops = t.stations;
                 for (int i = 0; i < stops.size() - 1; i++) {
@@ -152,7 +153,8 @@ public class RouteFinder {
             }
         }
 
-        Queue<QueueNode> queue = new LinkedList<>();        // use station and or train as visited key to allow transfers
+        Queue<QueueNode> queue = new LinkedList<>();       
+         // use station and or train as visited key to allow transfers
         Set<String> visited = new HashSet<>();
         queue.add(new QueueNode(fromCode, new ArrayList<>(), 0, null));
 
