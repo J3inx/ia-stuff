@@ -76,7 +76,7 @@ public class Main {
         JComboBox<String> startCityBox = new JComboBox<>(allCities);
         JComboBox<String> destStateBox = new JComboBox<>(allStates);
         JComboBox<String> destCityBox = new JComboBox<>(allCities);
-        JComboBox<String> classBox = new JComboBox<>(new String[]{"economy", "business", "first", "private"});
+        JComboBox<String> classBox = new JComboBox<>(new String[]{"economy", "business", "first", "private"});// might not need private, not many trains run that
 
         JButton findButton = new JButton("Find Route");
 
@@ -134,7 +134,7 @@ public class Main {
         findButton.addActionListener(e -> {
             try { doc.remove(0, doc.getLength()); } catch (Exception ignored) {}
         
-            if (xof != 0) {
+            if (xof != 0) { // heh metal gear refference
                 appendStyled(doc, "Routing system failed to initialize.\n", normal);
                 return;
             }
@@ -180,10 +180,10 @@ public class Main {
                 appendStyled(doc,spinnerFrames[frameIndex[0]] + " " + "Calculating route... " + spinnerFrames[frameIndex[0]] + "\n", normal);
                 frameIndex[0] = (frameIndex[0] + 1) % spinnerFrames.length;
             });
-            spinnerTimer.start();
+            spinnerTimer.start(); //spinner not starting, seems to not run when dfs is running so this is extra unnecessary code, will keep it just in case.
         
             // ---------------------------
-            // Run DFS in background thread
+            //    Run DFS in background
             // ---------------------------
             SwingWorker<RouteFinder.PathResult, Void> worker = new SwingWorker<>() {
                 @Override
@@ -262,7 +262,7 @@ public class Main {
         
 
         // --------------------
-        // Build leg graph
+        //  Build leg graph
         // --------------------
         try {
             System.out.println("Building leg graphs...");
